@@ -1,0 +1,177 @@
+openapi: '3.0.2'
+info:
+  title: Modell API
+  version: '1.0'
+  description: Das ultimative Modell API
+servers:
+  - url: https://api.server.test/v1
+paths:
+  /modelle/:
+    post:
+      tags:
+        - "Modelle"
+      summary: Legt ein Modell an.
+      description: |
+        Legt ein neues **Modell** an.
+
+        |A|B|C|
+        |---|---|---|
+        |1|2|3|
+      requestBody:
+        $ref: "#/components/requestBodies/Modell"
+      responses:
+        201:
+          description: Created
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'      
+    get:
+      tags:
+       - "Modelle"
+      summary:  Liste der Modelle.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        200:
+          description: OK
+          content:
+            application/jason:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModellItem'
+
+  /modelle/{mid}:
+    parameters: 
+      - $ref: "#/components/parameters/Mid"
+    get:
+      tags:
+        - "Modelle"
+      summary: Liefert ein Modell.
+      responses:
+        200:
+          $ref: '#/components/responses/Modell'
+    put:
+      tags:
+        - "Modelle"
+      summary: Ändert ein Modell.
+      requestBody:
+        $ref: "#/components/requestBodies/Modell"
+      responses:
+        200:
+          $ref: "#/components/responses/Modell"
+    delete:
+      tags:
+        - "Modelle"
+      summary: Löscht ein Modell.
+      responses:
+        200:
+          description: Ok
+
+  /werke/{wid}:
+    parameters:
+      - $ref: "#/components/parameters/Wid"
+    get:
+      tags:
+        - "Werk"
+      operationId: getWerk
+      responses:
+        200:
+          $ref: '#/components/responses/Werk'       
+
+components:
+  parameters:
+    Mid:
+      name: mid
+      in: path
+      required: true
+      schema: 
+        type: integer
+      description: ID des Modells
+    
+    Wid:
+      name: wid
+      in: path
+      required: true
+      schema: 
+        type: integer
+      description: ID des Werkes
+    
+    Limit:
+      name: limit 
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+  
+  requestBodies:
+    Modell:
+      content:
+        application/jason:
+          schema:
+            $ref: '#/components/schemas/Modell'
+ 
+  responses:
+    Modell:
+      description: OK
+      content:
+        application/jason:
+          schema:
+            $ref: '#/components/schemas/Modell'
+      links:
+        Werk:
+          operationId: getWerk
+          parameters:
+            wid: $response.body#/werk
+    Werk:
+      description: OK
+      content:
+        application/jason:
+          schema:
+            $ref: '#/components/schemas/Werk'
+  
+  headers:
+    Location:
+      description: URI der neu erzuegten Ressource.
+      schema:
+        type: string
+        format: uri
+  
+  schemas:
+    Modell:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 11235
+        name:
+          type: string
+          maxLength: 20
+          example: "Modell 3"
+        werk:
+          type: integer
+          example: 42
+    
+    ModellItem:
+      type: object
+      properties:
+        name:
+         type: string
+        self_url:
+          type: string
+          format: uri
+      example:
+        name: ID.3
+        self_url: /modelle/67
+    
+    Werk: 
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 13
+        name:
+          type: string
+          maxLength: 25
+          example: Suzuki
